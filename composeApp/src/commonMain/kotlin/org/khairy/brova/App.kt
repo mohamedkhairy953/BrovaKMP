@@ -1,37 +1,30 @@
+@file:OptIn(KoinExperimentalAPI::class)
+
 package org.khairy.brova
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.Typography
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import org.jetbrains.compose.resources.painterResource
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
-import brovakmp.composeapp.generated.resources.Res
-import brovakmp.composeapp.generated.resources.compose_multiplatform
+import org.khairy.brova.design.ProvaFontFamily
+import org.khairy.brova.features.login.ui.LoginScreen
+import org.khairy.brova.features.login.viewmodel.LoginViewModel
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
-            }
+   // val loginViewModel = koinViewModel<LoginViewModel>()
+    MaterialTheme(
+        typography = Typography(defaultFontFamily = ProvaFontFamily())
+    ) {
+        CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+            // Your UI Code
+            LoginScreen()
         }
     }
 }
