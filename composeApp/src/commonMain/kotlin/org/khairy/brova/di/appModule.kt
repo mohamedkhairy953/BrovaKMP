@@ -15,7 +15,6 @@ import org.koin.dsl.module
 
 val appModule = module {
     single {
-        //val baseUrl = loadProperties("config.properties")["base_url"] ?: ""
         HttpClient {
             install(ContentNegotiation) {
                 json(Json {

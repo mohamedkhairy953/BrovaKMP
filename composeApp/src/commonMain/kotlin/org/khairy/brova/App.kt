@@ -7,24 +7,48 @@ import androidx.compose.material.Typography
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import kotlinx.serialization.Serializable
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import org.khairy.brova.design.ProvaFontFamily
 import org.khairy.brova.features.login.ui.LoginScreen
-import org.khairy.brova.features.login.viewmodel.LoginViewModel
-import org.koin.compose.viewmodel.koinViewModel
+import org.khairy.brova.features.register.ui.RegisterScreen
 import org.koin.core.annotation.KoinExperimentalAPI
 
 @Composable
 @Preview
 fun App() {
-   // val loginViewModel = koinViewModel<LoginViewModel>()
+
     MaterialTheme(
         typography = Typography(defaultFontFamily = ProvaFontFamily())
     ) {
+        val navController = rememberNavController()
         CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-            // Your UI Code
-            LoginScreen()
+            ProvaLoginNavigation(navController)
         }
     }
 }
+
+@Composable
+fun ProvaLoginNavigation(navController: NavHostController) {
+
+    NavHost(navController = navController, startDestination = LoginScreen) {
+        composable<LoginScreen> {
+            LoginScreen(navController = navController)
+        }
+
+        composable<RegisterScreen> {
+            RegisterScreen(navController = navController)
+        }
+    }
+}
+
+@Serializable
+object LoginScreen
+
+@Serializable
+object RegisterScreen

@@ -1,6 +1,6 @@
 @file:OptIn(KoinExperimentalAPI::class)
 
-package org.khairy.brova.features.login.ui
+package org.khairy.brova.features.register.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -28,6 +28,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Face
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,6 +49,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import brovakmp.composeapp.generated.resources.Res
 import brovakmp.composeapp.generated.resources.ic_logo
@@ -54,11 +58,12 @@ import brovakmp.composeapp.generated.resources.ic_phone_register
 import brovakmp.composeapp.generated.resources.ic_visibility_off
 import brovakmp.composeapp.generated.resources.ic_visibility_on
 import org.jetbrains.compose.resources.painterResource
-import org.khairy.brova.RegisterScreen
+import org.khairy.brova.LoginScreen
 import org.khairy.brova.design.AppColors
-import org.khairy.brova.features.login.viewmodel.LoginEvent
-import org.khairy.brova.features.login.viewmodel.LoginState
-import org.khairy.brova.features.login.viewmodel.LoginViewModel
+import org.khairy.brova.features.login.ui.LoginScreen
+import org.khairy.brova.features.login.viewmodel.RegisterEvent
+import org.khairy.brova.features.login.viewmodel.RegisterState
+import org.khairy.brova.features.login.viewmodel.RegisterViewModel
 import org.khairy.brova.utils.SpacerHeight16
 import org.khairy.brova.utils.SpacerHeight32
 import org.khairy.brova.utils.SpacerHeight8
@@ -67,16 +72,22 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavHostController) {
+fun RegisterScreen(
+    viewModel: RegisterViewModel = koinViewModel(),
+    navController: NavController,
+) {
     val state = viewModel.state.collectAsState().value
     val username = viewModel.username.collectAsState().value
+    val phone = viewModel.phone.collectAsState().value
+    val email = viewModel.email.collectAsState().value
+    val confirmPassword = viewModel.confirmPassword.collectAsState().value
     val password = viewModel.password.collectAsState().value
-    var isLoading by remember { mutableStateOf(state is LoginState.Loading) }
+    val isLoading by remember { mutableStateOf(state is RegisterState.Loading) }
     var errorMessage by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     when (state) {
-        is LoginState.Error -> errorMessage = state.message
-        is LoginState.Success -> {
+        is RegisterState.Error -> errorMessage = state.message
+        is RegisterState.Success -> {
 
         }
 
@@ -104,7 +115,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
         SpacerHeight32()
 
         Text(
-            text = "!مرحبا بك",
+            text = "مرحبا بك في تطبيق بروفة..",
             color = AppColors.blue_0072CE,
             fontWeight = FontWeight.SemiBold,
             modifier = Modifier.fillMaxWidth(),
@@ -112,14 +123,14 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
         )
         SpacerWidth8()
         Text(
-            text = "سجل الدخول للتطبيق",
+            text = "سجل معنا في التطبيق واستمتع بخدماتنا",
             fontWeight = FontWeight.Normal,
             color = AppColors.black_595959,
             fontSize = 16.sp,
         )
         SpacerHeight32()
         Text(
-            text = "رقم الجوال",
+            text = "الاسم",
             fontWeight = FontWeight.Normal,
             color = Color.Black,
             fontSize = 16.sp,
@@ -131,7 +142,34 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
             ),
-            onValueChange = { viewModel.onEvent(LoginEvent.OnUsernameChange(it)) },
+            onValueChange = { viewModel.onEvent(RegisterEvent.OnUsernameChange(it)) },
+            placeholder = { Text("الاسم") },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Image(
+                    imageVector = Icons.Default.Face,
+                    contentDescription = "Face Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            text = "رقم الجوال",
+            fontWeight = FontWeight.Normal,
+            color = Color.Black,
+            fontSize = 16.sp,
+        )
+        TextField(
+            value = phone,
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            onValueChange = { viewModel.onEvent(RegisterEvent.OnPhoneChange(it)) },
             placeholder = { Text("01129053117") },
             modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
@@ -146,6 +184,28 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        TextField(
+            value = email,
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            onValueChange = { viewModel.onEvent(RegisterEvent.OnEmailChange(it)) },
+            placeholder = { Text("mohamed@xyz.com") },
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Image(
+                    imageVector = Icons.Default.Email,
+                    contentDescription = "email Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
             text = "كلمة المرور",
             fontWeight = FontWeight.Normal,
@@ -154,7 +214,54 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
         )
         TextField(
             value = password,
-            onValueChange = { viewModel.onEvent(LoginEvent.OnPasswordChange(it)) },
+            onValueChange = { viewModel.onEvent(RegisterEvent.OnPasswordChange(it)) },
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            placeholder = { Text("********") },
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            leadingIcon = {
+                Image(
+                    painter = painterResource(Res.drawable.ic_passkey_register),
+                    contentDescription = "Password Icon",
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            trailingIcon = {
+                val icon =
+                    if (passwordVisible)
+                        painterResource(Res.drawable.ic_visibility_on)
+                    else
+                        painterResource(Res.drawable.ic_visibility_off)
+
+                val description = if (passwordVisible) "Hide password" else "Show password"
+
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        painter = icon,
+                        contentDescription = description,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+            },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        )
+
+        SpacerHeight16()
+
+        Text(
+            text = "تأكيد كلمة المرور",
+            fontWeight = FontWeight.Normal,
+            color = Color.Black,
+            fontSize = 16.sp,
+        )
+        TextField(
+            value = confirmPassword,
+            onValueChange = { viewModel.onEvent(RegisterEvent.OnConfirmPasswordChange(it)) },
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
@@ -227,7 +334,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
         Spacer(modifier = Modifier.height(64.dp))
         Button(
             onClick = {
-                viewModel.onEvent(LoginEvent.OnLoginClick)
+                viewModel.onEvent(RegisterEvent.OnRegisterClick)
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
@@ -242,7 +349,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
                     color = Color.White
                 )
             } else {
-                Text("تسجيل الدخول")
+                Text("تسجيل")
             }
         }
 
@@ -253,7 +360,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "ليس لديك حساب ؟",
+                text = "لديك حساب في التطبيق ؟",
                 style = TextStyle(
                     color = Color.Gray,
                     fontSize = 14.sp
@@ -262,7 +369,8 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
             SpacerWidth8()
             Text(
                 text = buildAnnotatedString {
-                    append("سجل الآن")
+                    val text = "تسجيل الدخول"
+                    append(text)
                     addStyle(
                         style = SpanStyle(
                             color = MaterialTheme.colors.primary,
@@ -270,11 +378,11 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
                             fontSize = 14.sp
                         ),
                         start = 0,
-                        end = "سجل الآن".length
+                        end = text.length
                     )
                 },
                 modifier = Modifier.clickable {
-                    navController.navigate(RegisterScreen)
+                    navController.navigate(LoginScreen)
                 }
             )
         }
