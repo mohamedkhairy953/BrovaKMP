@@ -58,12 +58,12 @@ import brovakmp.composeapp.generated.resources.ic_phone_register
 import brovakmp.composeapp.generated.resources.ic_visibility_off
 import brovakmp.composeapp.generated.resources.ic_visibility_on
 import org.jetbrains.compose.resources.painterResource
-import org.khairy.brova.LoginScreen
 import org.khairy.brova.design.AppColors
 import org.khairy.brova.features.login.ui.LoginScreen
 import org.khairy.brova.features.login.viewmodel.RegisterEvent
 import org.khairy.brova.features.login.viewmodel.RegisterState
 import org.khairy.brova.features.login.viewmodel.RegisterViewModel
+import org.khairy.brova.navigation.LoginScreen
 import org.khairy.brova.utils.SpacerHeight16
 import org.khairy.brova.utils.SpacerHeight32
 import org.khairy.brova.utils.SpacerHeight8

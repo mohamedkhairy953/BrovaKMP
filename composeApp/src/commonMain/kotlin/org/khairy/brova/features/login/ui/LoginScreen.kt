@@ -54,11 +54,12 @@ import brovakmp.composeapp.generated.resources.ic_phone_register
 import brovakmp.composeapp.generated.resources.ic_visibility_off
 import brovakmp.composeapp.generated.resources.ic_visibility_on
 import org.jetbrains.compose.resources.painterResource
-import org.khairy.brova.RegisterScreen
 import org.khairy.brova.design.AppColors
 import org.khairy.brova.features.login.viewmodel.LoginEvent
 import org.khairy.brova.features.login.viewmodel.LoginState
 import org.khairy.brova.features.login.viewmodel.LoginViewModel
+import org.khairy.brova.navigation.HomeScreen
+import org.khairy.brova.navigation.RegisterScreen
 import org.khairy.brova.utils.SpacerHeight16
 import org.khairy.brova.utils.SpacerHeight32
 import org.khairy.brova.utils.SpacerHeight8
@@ -77,7 +78,7 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
     when (state) {
         is LoginState.Error -> errorMessage = state.message
         is LoginState.Success -> {
-
+            navController.navigate(HomeScreen)
         }
 
         else -> {}
@@ -227,7 +228,8 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
         Spacer(modifier = Modifier.height(64.dp))
         Button(
             onClick = {
-                viewModel.onEvent(LoginEvent.OnLoginClick)
+                //viewModel.onEvent(LoginEvent.OnLoginClick)
+                navController.navigate(HomeScreen)
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),

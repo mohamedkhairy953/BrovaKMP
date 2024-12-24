@@ -2,6 +2,7 @@
 
 package org.khairy.brova
 
+import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.runtime.*
@@ -13,10 +14,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.serialization.Serializable
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.khairy.brova.design.AppColors
 
 import org.khairy.brova.design.ProvaFontFamily
 import org.khairy.brova.features.login.ui.LoginScreen
 import org.khairy.brova.features.register.ui.RegisterScreen
+import org.khairy.brova.navigation.ProvaLoginNavigation
 import org.koin.core.annotation.KoinExperimentalAPI
 
 @Composable
@@ -24,6 +27,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun App() {
 
     MaterialTheme(
+        //colors = ProvaColors(),
         typography = Typography(defaultFontFamily = ProvaFontFamily())
     ) {
         val navController = rememberNavController()
@@ -33,22 +37,10 @@ fun App() {
     }
 }
 
-@Composable
-fun ProvaLoginNavigation(navController: NavHostController) {
+/*fun ProvaColors(): Colors {
+    return Colors(
+        primary = AppColors.blue_0072CE,
 
-    NavHost(navController = navController, startDestination = LoginScreen) {
-        composable<LoginScreen> {
-            LoginScreen(navController = navController)
-        }
+    )
+}*/
 
-        composable<RegisterScreen> {
-            RegisterScreen(navController = navController)
-        }
-    }
-}
-
-@Serializable
-object LoginScreen
-
-@Serializable
-object RegisterScreen
