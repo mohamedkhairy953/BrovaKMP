@@ -4,6 +4,8 @@ import android.app.Application
 import org.khairy.brova.di.appModule
 import org.khairy.brova.features.login.di.loginModule
 import org.khairy.brova.features.login.di.registerModule
+import org.khairy.brova.features.login.di.scanQRModule
+import org.khairy.brova.features.savesizes.di.takeMeasuresModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.GlobalContext.startKoin
 
@@ -19,7 +21,9 @@ class ProvaApp : Application() {
             modules(
                 appModule,
                 loginModule,
-                registerModule
+                registerModule,
+                scanQRModule,
+                takeMeasuresModule
             )
         }
     }

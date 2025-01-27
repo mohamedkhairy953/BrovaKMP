@@ -37,6 +37,8 @@ kotlin {
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.android)
             implementation(libs.android.driver)
+            implementation(libs.zxing.android.embedded)
+
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -60,6 +62,9 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.navigation.compose)
             implementation(libs.okio)
+            implementation(libs.easyqrscan)
+            implementation("io.coil-kt.coil3:coil-compose:3.0.4")
+            implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

@@ -33,6 +33,8 @@ import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,9 +57,13 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.khairy.brova.design.AppColors
 import org.khairy.brova.features.home.model.Measurement
 import org.khairy.brova.navigation.HomeScreen
+import org.khairy.brova.navigation.SaveSizesScreen
+import org.khairy.brova.navigation.ScanQRScreen
 import org.khairy.brova.utils.SpacerHeight32
 import org.khairy.brova.utils.SpacerHeight8
 import org.khairy.brova.utils.SpacerWidth16
+import org.publicvalue.multiplatform.qrcode.CodeType
+import org.publicvalue.multiplatform.qrcode.ScannerWithPermissions
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
@@ -70,7 +76,8 @@ fun HomeScreen(navController: NavHostController) {
                 backgroundColor = AppColors.blue_0072CE,
                 modifier = Modifier.size(70.dp),
                 onClick = {
-                    // Handle FAB click
+                    //navController.navigate(ScanQRScreen)
+                    navController.navigate(SaveSizesScreen)
                 }
             ) {
                 Icon(
