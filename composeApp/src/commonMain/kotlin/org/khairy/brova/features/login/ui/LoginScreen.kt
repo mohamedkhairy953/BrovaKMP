@@ -228,8 +228,8 @@ fun LoginScreen(viewModel: LoginViewModel = koinViewModel(), navController: NavH
         Spacer(modifier = Modifier.height(64.dp))
         Button(
             onClick = {
-                //viewModel.onEvent(LoginEvent.OnLoginClick)
-                navController.navigate(HomeScreen)
+                viewModel.onEvent(LoginEvent.OnLoginClick)
+                //navController.navigate(HomeScreen)
             },
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),

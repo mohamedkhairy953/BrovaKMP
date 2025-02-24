@@ -1,6 +1,7 @@
 package org.khairy.brova.features.login.datasource
 
 import io.ktor.client.HttpClient
+import io.ktor.client.request.accept
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
@@ -23,6 +24,7 @@ class LoginApi(private val httpClient: HttpClient) {
     suspend fun invoke(reqBody: LoginReqBody): HttpResponse {
         val response: HttpResponse = httpClient.post(endpoint) {
             contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
             setBody(reqBody)
         }
         return response

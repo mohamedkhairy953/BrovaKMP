@@ -22,9 +22,9 @@ import org.khairy.brova.features.scanqr.ui.ScanQRResultsScreen
 import org.khairy.brova.features.scanqr.ui.ScanQRScreen
 
 @Composable
-fun ProvaLoginNavigation(navController: NavHostController) {
+fun ProvaLoginNavigation(navController: NavHostController,startDestination: Any) {
 
-    NavHost(navController = navController, startDestination = LoginScreen) {
+    NavHost(navController = navController, startDestination = startDestination) {
         composable<LoginScreen> {
             LoginScreen(navController = navController)
         }

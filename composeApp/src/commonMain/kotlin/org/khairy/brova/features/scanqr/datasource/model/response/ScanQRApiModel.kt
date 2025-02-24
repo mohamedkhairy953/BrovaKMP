@@ -27,3 +27,18 @@ data class ScanQRApiModel(
         val type: String
     )
 }
+sealed class SearchResultState {
+    object PerfectFit : SearchResultState()
+    object NeedsAdjustment : SearchResultState()
+    object NotSuitable : SearchResultState()
+    object NeedsRegistration : SearchResultState()
+}
+fun ScanQRApiModel.getSearchResultState(): SearchResultState {
+    return when(message) {
+        "Perfect Fit" -> SearchResultState.PerfectFit
+        "Needs Adjustment" -> SearchResultState.NeedsAdjustment
+        "Not Suitable" -> SearchResultState.NotSuitable
+        "Needs Registration" -> SearchResultState.NeedsRegistration
+        else -> SearchResultState.NotSuitable
+    }
+}

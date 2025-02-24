@@ -1,8 +1,12 @@
 package org.khairy.brova.features.savesizes.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import org.khairy.brova.features.savesizes.datasource.SaveSizesRepository
+import org.khairy.brova.features.savesizes.datasource.model.request.SaveSizesReqBody
 
 /**
  * ...
@@ -20,24 +24,37 @@ sealed class TakeMeasuresEvents {
     data class OnPantsWidthChange(val width: String) : TakeMeasuresEvents()
     data class OnPantsThighChange(val thigh: String) : TakeMeasuresEvents()
     data class OnPantsHeightChange(val height: String) : TakeMeasuresEvents()
+    data object OnSaveClicked : TakeMeasuresEvents()
 }
 
-class TakeMeasuresViewmodel() : ViewModel() {
+sealed class TakeMeasuresState {
+    object Idle : TakeMeasuresState()
+    object Loading : TakeMeasuresState()
+    object Success : TakeMeasuresState()
+    data class Error(val message: String) : TakeMeasuresState()
+}
 
-    private val _shirtWidth = MutableStateFlow("")
-    val shirtWidth: StateFlow<String> get() = _shirtWidth
+class TakeMeasuresViewmodel(
+    private val repo: SaveSizesRepository,
+) : ViewModel() {
 
-    private val _shirtHeight = MutableStateFlow("")
-    val shirtHeight: StateFlow<String> get() = _shirtHeight
+    private val _shirtWidth = MutableStateFlow<String?>(null)
+    val shirtWidth: StateFlow<String?> get() = _shirtWidth
 
-    private val _pantsWidth = MutableStateFlow("")
-    val pantsWidth: StateFlow<String> get() = _pantsWidth
+    private val _shirtHeight = MutableStateFlow<String?>(null)
+    val shirtHeight: StateFlow<String?> get() = _shirtHeight
 
-    private val _pantsThigh = MutableStateFlow("")
-    val pantsThigh: StateFlow<String> get() = _pantsThigh
+    private val _pantsWidth = MutableStateFlow<String?>(null)
+    val pantsWidth: StateFlow<String?> get() = _pantsWidth
 
-    private val _pantsHeight = MutableStateFlow("")
-    val pantsHeight: StateFlow<String> get() = _pantsHeight
+    private val _pantsThigh = MutableStateFlow<String?>(null)
+    val pantsThigh: StateFlow<String?> get() = _pantsThigh
+
+    private val _pantsHeight = MutableStateFlow<String?>(null)
+    val pantsHeight: StateFlow<String?> get() = _pantsHeight
+
+    private val _state = MutableStateFlow<TakeMeasuresState>(TakeMeasuresState.Idle)
+    val state: StateFlow<TakeMeasuresState> get() = _state
 
     fun onEvent(event: TakeMeasuresEvents) {
         when (event) {
@@ -46,6 +63,29 @@ class TakeMeasuresViewmodel() : ViewModel() {
             is TakeMeasuresEvents.OnPantsWidthChange -> _pantsWidth.value = event.width
             is TakeMeasuresEvents.OnPantsThighChange -> _pantsThigh.value = event.thigh
             is TakeMeasuresEvents.OnPantsHeightChange -> _pantsHeight.value = event.height
+            TakeMeasuresEvents.OnSaveClicked -> {
+                saveSizes()
+            }
+        }
+    }
+
+    fun saveSizes() {
+        viewModelScope.launch {
+            _state.value = TakeMeasuresState.Loading
+            runCatching {
+                val reqBody = SaveSizesReqBody(
+                    tshirt_width = _shirtWidth.value?.toDoubleOrNull(),
+                    tshirt_length = _shirtHeight.value?.toDoubleOrNull(),
+                    pants_waist = _pantsWidth.value?.toDoubleOrNull(),
+                    pants_length = _pantsThigh.value?.toDoubleOrNull(),
+                    Pants_thigh = _pantsHeight.value?.toDoubleOrNull()
+                )
+                repo.saveUserSizes(reqBody)
+            }.onSuccess {
+                _state.value = TakeMeasuresState.Success
+            }.onFailure {
+                _state.value = TakeMeasuresState.Error(it.message ?: "An error occurred")
+            }
         }
     }
 }

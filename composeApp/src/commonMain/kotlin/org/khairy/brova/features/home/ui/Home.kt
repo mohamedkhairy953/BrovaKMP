@@ -16,10 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
@@ -27,19 +24,14 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.key.Key.Companion.R
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -55,15 +47,17 @@ import brovakmp.composeapp.generated.resources.ic_t_shirt
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.khairy.brova.design.AppColors
+import org.khairy.brova.features.brovaprefrences.BrovaSharedPrefs
 import org.khairy.brova.features.home.model.Measurement
-import org.khairy.brova.navigation.HomeScreen
-import org.khairy.brova.navigation.SaveSizesScreen
 import org.khairy.brova.navigation.ScanQRScreen
 import org.khairy.brova.utils.SpacerHeight32
 import org.khairy.brova.utils.SpacerHeight8
 import org.khairy.brova.utils.SpacerWidth16
-import org.publicvalue.multiplatform.qrcode.CodeType
-import org.publicvalue.multiplatform.qrcode.ScannerWithPermissions
+import org.koin.compose.koinInject
+import org.khairy.brova.features.scanhistory.viewmodel.ScanHistoryViewModel
+import org.khairy.brova.features.scanhistory.viewmodel.ScanHistoryEvent
+import org.khairy.brova.features.scanhistory.viewmodel.ScanHistoryState
+import coil3.compose.AsyncImage
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
@@ -76,8 +70,7 @@ fun HomeScreen(navController: NavHostController) {
                 backgroundColor = AppColors.blue_0072CE,
                 modifier = Modifier.size(70.dp),
                 onClick = {
-                    //navController.navigate(ScanQRScreen)
-                    navController.navigate(SaveSizesScreen)
+                    navController.navigate(ScanQRScreen)
                 }
             ) {
                 Icon(
@@ -97,21 +90,48 @@ fun HomeScreen(navController: NavHostController) {
 
 @Composable
 private fun HomeScreenContent() {
+    val viewModel: ScanHistoryViewModel = koinInject()
+    val state by viewModel.state.collectAsState()
+    
+    LaunchedEffect(Unit) {
+        viewModel.onEvent(ScanHistoryEvent.LoadHistory)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .background(Color(0xFFF8F8F8)) // Light background
-
+            .background(Color(0xFFF8F8F8))
     ) {
         WelcomeBanner()
         QRCodeCard()
-        PreviousMeasurementsSection(measurements)
+        
+        when (val currentState = state) {
+            is ScanHistoryState.Success -> {
+                PreviousMeasurementsSection(
+                    measurements = currentState.history
+                )
+            }
+            is ScanHistoryState.Error -> {
+                // Handle error state
+                Text("Error: ${currentState.message}")
+            }
+            ScanHistoryState.Loading -> {
+                // Show loading indicator
+                Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    Text("Loading...")
+                }
+            }
+            else -> {}
+        }
     }
 }
 
 @Composable
-fun UserHeaderSection() {
+fun UserHeaderSection(sharedPrefs: BrovaSharedPrefs = koinInject()) {
+    // Obtain the user data from shared preferences
+    val user = sharedPrefs.getUserData()
+    
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,8 +139,9 @@ fun UserHeaderSection() {
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Use the user's name if available; otherwise show a default value ("Guest")
         Text(
-            text = "حسام إبراهيم",
+            text = user?.name ?: "Guest",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
@@ -128,8 +149,7 @@ fun UserHeaderSection() {
             painter = painterResource(Res.drawable.ic_notification_on),
             contentDescription = "User Image",
             tint = AppColors.black_595959,
-            modifier = Modifier
-                .size(32.dp)
+            modifier = Modifier.size(32.dp)
         )
     }
 }
@@ -200,7 +220,7 @@ fun QRCodeCard() {
 }
 
 @Composable
-fun PreviousMeasurementsSection(measurements: List<Measurement>) {
+fun PreviousMeasurementsSection(measurements: List<ScanHistoryApiModel.Data>) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text(
             text = "القياسات السابقة",
@@ -237,11 +257,11 @@ fun PreviousMeasurementsSection(measurements: List<Measurement>) {
 }
 
 @Composable
-fun MeasurementItem(measurement: Measurement, modifier: Modifier = Modifier) {
+fun MeasurementItem(measurement: ScanHistoryApiModel.Data, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(0.8f), // Adjust as needed
+            .aspectRatio(0.8f),
         shape = RoundedCornerShape(8.dp),
         elevation = 3.dp
     ) {
@@ -249,9 +269,9 @@ fun MeasurementItem(measurement: Measurement, modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(8.dp)
         ) {
-            Image(
-                painter = painterResource(measurement.imageRes),
-                contentDescription = measurement.name,
+            AsyncImage(
+                model = measurement.image,
+                contentDescription = measurement.title,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -260,12 +280,12 @@ fun MeasurementItem(measurement: Measurement, modifier: Modifier = Modifier) {
             )
             SpacerHeight8()
             Text(
-                text = measurement.name,
+                text = measurement.title,
                 fontSize = 14.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = "${measurement.price} EGP",
+                text = "${measurement.price} ${measurement.currency}",
                 fontSize = 12.sp,
                 color = Color.Gray
             )
@@ -276,20 +296,17 @@ fun MeasurementItem(measurement: Measurement, modifier: Modifier = Modifier) {
                 color = Color.Blue,
                 fontWeight = FontWeight.Bold
             )
+            Text(
+                text = measurement.shop_name,
+                fontSize = 12.sp,
+                color = Color.Gray
+            )
         }
     }
 }
-
 
 @Preview
 @Composable
 fun MainScreenPreview() {
     HomeScreen(navController = rememberNavController())
 }
-
-val measurements = listOf(
-    Measurement("تيشيرت بولو", "700", "XL", Res.drawable.ic_t_shirt),
-    Measurement("تيشيرت كاجوال", "600", "L", Res.drawable.ic_t_shirt),
-    Measurement("تيشيرت رياضي", "550", "M", Res.drawable.ic_t_shirt),
-    Measurement("تيشيرت كلاسيك", "750", "S", Res.drawable.ic_t_shirt),
-)

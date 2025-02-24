@@ -23,7 +23,7 @@ import org.koin.dsl.module
 
 val scanQRModule = module {
 
-    single<ScanQRApi> { ScanQRApi(get()) }
+    single<ScanQRApi> { ScanQRApi(get(), get()) }
     single<ScanQRRepository> { ScanQRRepositoryImpl(get()) }
     viewModel { ProductDetailsViewModel(get()) }
 }

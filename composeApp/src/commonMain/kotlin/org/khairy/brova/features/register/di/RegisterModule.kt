@@ -20,6 +20,6 @@ import org.koin.dsl.module
 val registerModule = module {
 
     single<RegisterApi> { RegisterApi(get()) }
-    single<RegisterRepository> { RegisterRepositoryImpl(get()) }
+    single<RegisterRepository> { RegisterRepositoryImpl(get(), get()) }
     viewModel { RegisterViewModel(get()) }
 }

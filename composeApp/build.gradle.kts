@@ -8,16 +8,18 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
+    alias(libs.plugins.sqldelight)
 }
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
-        compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -65,6 +67,8 @@ kotlin {
             implementation(libs.easyqrscan)
             implementation("io.coil-kt.coil3:coil-compose:3.0.4")
             implementation("io.coil-kt.coil3:coil-network-okhttp:3.0.4")
+            implementation(libs.multiplatform.settings)
+
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)

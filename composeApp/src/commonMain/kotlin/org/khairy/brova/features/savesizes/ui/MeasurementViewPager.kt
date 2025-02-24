@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Divider
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -28,9 +30,14 @@ import brovakmp.composeapp.generated.resources.ic_t_shirt
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.painterResource
 import org.khairy.brova.features.savesizes.viewmodel.TakeMeasuresEvents
+import org.khairy.brova.features.savesizes.viewmodel.TakeMeasuresState
 import org.khairy.brova.features.savesizes.viewmodel.TakeMeasuresViewmodel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.SnackbarResult
+import androidx.compose.runtime.remember
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
@@ -45,6 +52,15 @@ fun MeasurementViewPager(
     val pantsWidth = takeMeasuresViewmodel.pantsWidth.collectAsState()
     val pantsThigh = takeMeasuresViewmodel.pantsThigh.collectAsState()
     val pantsHeight = takeMeasuresViewmodel.pantsHeight.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val state = takeMeasuresViewmodel.state.collectAsState()
+
+    LaunchedEffect(state.value) {
+        if (state.value is TakeMeasuresState.Error) {
+            val errorState = state.value as TakeMeasuresState.Error
+            snackbarHostState.showSnackbar(errorState.message)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -54,9 +70,19 @@ fun MeasurementViewPager(
                 elevation = 0.dp,
                 //navigationIcon = Res.drawable.baseline_arrow_back_24
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            // Show loading state
+            if (state.value == TakeMeasuresState.Loading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+            }
+
+            // Navigate on success
+            if (state.value == TakeMeasuresState.Success) {
+
+            }
 
             TabRow(
                 tabs = {
@@ -169,7 +195,7 @@ fun MeasurementViewPager(
                         },
                         nextButtonAction = {},
                         confirmButtonAction = {
-                            //navController.navigate("save-sizes")
+                            takeMeasuresViewmodel.onEvent(TakeMeasuresEvents.OnSaveClicked)
                         },
                         previousButtonAction = {
                             coroutineScope.launch {

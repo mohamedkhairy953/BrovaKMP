@@ -11,10 +11,12 @@ import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.khairy.brova.features.brovaprefrences.BrovaSharedPrefs
 import org.khairy.brova.utils.loadProperties
 import org.koin.dsl.module
 
 val appModule = module {
+    single { BrovaSharedPrefs() }
     single {
         HttpClient {
             install(ContentNegotiation) {
@@ -31,6 +33,11 @@ val appModule = module {
 
             defaultRequest {
                 url("https://brova.quantaura.com/api/")
+                headers {
+                    //append("Authorization", "Bearer ${get<BrovaSharedPrefs>().getAuthToken()}")
+                    append("Accept", "application/json")
+                    append("Content-Type", "application/json")
+                }
             }
         }
     }

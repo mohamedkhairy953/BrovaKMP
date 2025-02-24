@@ -12,7 +12,7 @@ package org.khairy.brova.features.savesizes.datasource.model.response
 data class SaveSizesApiModel(
     val message: String,
     val success: Boolean,
-    val data: Data
+    val data: Data?
 ) {
     data class Data(
         val id: Int,

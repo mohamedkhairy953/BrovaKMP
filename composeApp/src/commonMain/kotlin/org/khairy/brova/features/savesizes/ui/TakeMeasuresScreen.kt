@@ -29,7 +29,7 @@ import org.khairy.brova.utils.SpacerWidth8
 fun TakeMeasuresScreen(
     image: Painter,
     textFieldLabel: String,
-    measurementValue: String,
+    measurementValue: String?,
     onMeasurementValueChange: (String) -> Unit,
     nextButtonAction: () -> Unit,
     confirmButtonAction: (() -> Unit)? = null,
@@ -73,7 +73,7 @@ fun TakeMeasuresScreen(
 
         // Input field for measurement
         OutlinedTextField(
-            value = measurementValue,
+            value = measurementValue ?: "",
             onValueChange = onMeasurementValueChange,
             label = { Text(text = textFieldLabel) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -102,9 +102,9 @@ fun TakeMeasuresScreen(
             }
 
             Button(
-                enabled = measurementValue.isNotBlank(),
+                enabled = measurementValue.isNullOrEmpty().not(),
                 onClick = {
-                    if (measurementValue.isNotBlank()) {
+                    if (measurementValue.isNullOrEmpty().not()) {
                         confirmButtonAction?.invoke() ?: nextButtonAction()
                     }
                 },

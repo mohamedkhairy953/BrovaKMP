@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Snackbar
 import androidx.compose.material.Text
@@ -27,7 +28,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import brovakmp.composeapp.generated.resources.Res
 import brovakmp.composeapp.generated.resources.ic_t_shirt
@@ -35,6 +39,8 @@ import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.khairy.brova.features.login.viewmodel.ProductDetailsViewModel
 import org.khairy.brova.features.scanqr.datasource.model.response.ScanQRApiModel
+import org.khairy.brova.features.scanqr.datasource.model.response.SearchResultState
+import org.khairy.brova.features.scanqr.datasource.model.response.getSearchResultState
 import org.khairy.brova.features.scanqr.viewmodel.ProductDetailsEvent
 import org.khairy.brova.features.scanqr.viewmodel.ScanQRUiState
 import org.khairy.brova.navigation.SaveSizesScreen
@@ -60,7 +66,7 @@ fun ScanQRResultsScreen(
             ProductDetailsContent(
                 model = uiState.apiModel,
                 onRescanClicked = {
-                    navController.navigate(SaveSizesScreen)
+                    navController.navigateUp()
                 },
             )
         }
@@ -191,33 +197,7 @@ private fun ProductDetailsContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // Suggestion Card
-        Card(
-            elevation = 4.dp,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Image(
-                    painter = painterResource(Res.drawable.ic_t_shirt), // Replace with your image resource
-                    contentDescription = "Suggestion Icon",
-                    modifier = Modifier.size(40.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Column {
-                    Text(
-                        text = "التشيرت مناسب لمقاساتك",
-                        style = MaterialTheme.typography.body1
-                    )
-                    Text(
-                        text = "بننصحك تشتريه",
-                        style = MaterialTheme.typography.caption,
-                        color = Color.Gray
-                    )
-                }
-            }
-        }
+        ResultCard(model.getSearchResultState())
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -240,6 +220,143 @@ private fun ProductDetailsContent(
             ) {
                 Text(text = "كمل بحث")
             }
+        }
+    }
+}
+
+@Composable
+fun ResultCard(resultState: SearchResultState) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFF1464F4), RoundedCornerShape(8.dp))
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        when (resultState) {
+            is SearchResultState.PerfectFit -> PerfectFitCard()
+            is SearchResultState.NeedsAdjustment -> NeedsAdjustmentCard()
+            is SearchResultState.NotSuitable -> NotSuitableCard()
+            is SearchResultState.NeedsRegistration -> NeedsRegistrationCard()
+        }
+    }
+}
+
+@Composable
+fun PerfectFitCard() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_t_shirt),
+            contentDescription = "Perfect Fit",
+            tint = Color(0xFF3DA649),
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "التيشيرت مناسب المقاساتك", // "T-shirt fits your size!"
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = "بننصحك تشتريه", // "We recommend you buy it!"
+            color = Color.White,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun NeedsAdjustmentCard() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_t_shirt),
+            contentDescription = "Needs Adjustment",
+            tint = Color(0xFFF2994A),
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "التيشيرت مناسب بس محتاج تظبيط", // "T-shirt fits but needs adjustment"
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = "عاوز يتضيق 2 سم من الجنب وهيبقى تمام", // "Needs to be tightened 2cm on the side and it will be perfect"
+            color = Color.White,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun NotSuitableCard() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_t_shirt),
+            contentDescription = "Not Suitable",
+            tint = Color(0xFFEB5757),
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "التيشيرت مش مناسب المقاساتك", // "T-shirt does not fit your size"
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = "شوف مقاس أكبر", // "See a larger size"
+            color = Color.White,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center
+        )
+    }
+}
+
+@Composable
+fun NeedsRegistrationCard() {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Icon(
+            painter = painterResource(Res.drawable.ic_t_shirt),
+            contentDescription = "Needs Registration",
+            tint = Color.White,
+            modifier = Modifier.size(64.dp)
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "انت مسجلتش مقاساتك معانا !", // "You haven't registered your measurements with us!"
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = "سجل دلوقتي عشان نقولك التيشيرت مناسب ولا لا", // "Register now so we can tell you if the T-shirt fits or not"
+            color = Color.White,
+            fontSize = 14.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { /*TODO*/ },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White)
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_t_shirt),
+                contentDescription = "Register Measurements Icon",
+                tint = Color(0xFF3D698E),
+                modifier = Modifier.size(16.dp)
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = "سجل مقاساتك", color = Color(0xFF3D698E))
         }
     }
 }
